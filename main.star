@@ -1,24 +1,34 @@
-ETCD_IMAGE = "softlang/etcd-alpine:v3.4.14"
+NAME_ARG = "etcd_name"
+NAME_ARG_DEFAULT = "etcd"
 
-ETCD_CLIENT_PORT_ID = "client"
-ETCD_CLIENT_PORT_NUMBER = 2379
-ETCD_CLIENT_PORT_PROTOCOL = "TCP"
+IMAGE_ARG = "etcd_image"
+IMAGE_ARG_DEFAULT = "softlang/etcd-alpine:v3.4.14"
 
-ETCD_SERVICE_NAME = "etcd"
+CLIENT_PORT_ARG = "etcd_client_port"
+CLIENT_PORT_ARG_DEFAULT = 2379
+
+ENV_VARS_ARG = "etcd_env_vars"
+ENV_VARS_ARG_DEFAULT = {}
 
 def run(plan, args):
 
+    name = args.get(NAME_ARG, NAME_ARG_DEFAULT)
+    image = args.get(IMAGE_ARG, IMAGE_ARG_DEFAULT)
+    client_port = args.get(CLIENT_PORT_ARG, CLIENT_PORT_ARG_DEFAULT)
+    env_vars_overrides = args.get(ENV_VARS_ARG, ENV_VARS_ARG_DEFAULT)
+    env_vars = {
+        "ALLOW_NONE_AUTHENTICATION": "yes",
+        "ETCD_DATA_DIR": "/etcd_data",
+        "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:{}".format(client_port),
+        "ETCD_ADVERTISE_CLIENT_URLS": "http://0.0.0.0:{}".format(client_port),
+    } | env_vars_overrides
+
     etcd_service_config= ServiceConfig(
-        image = ETCD_IMAGE,
+        image = image,
         ports = {
-            ETCD_CLIENT_PORT_ID: PortSpec(number = ETCD_CLIENT_PORT_NUMBER, transport_protocol = ETCD_CLIENT_PORT_PROTOCOL)
+            "client": PortSpec(number = client_port, transport_protocol = "TCP")
         },
-        env_vars = {
-            "ALLOW_NONE_AUTHENTICATION": "yes",
-            "ETCD_DATA_DIR": "/etcd_data",
-            "ETCD_LISTEN_CLIENT_URLS": "http://0.0.0.0:{}".format(ETCD_CLIENT_PORT_NUMBER),
-            "ETCD_ADVERTISE_CLIENT_URLS": "http://0.0.0.0:{}".format(ETCD_CLIENT_PORT_NUMBER),
-        },
+        env_vars = env_vars,
         ready_conditions = ReadyCondition(
             recipe = ExecRecipe(
                 command = ["etcdctl", "get", "test"]
@@ -29,7 +39,7 @@ def run(plan, args):
         )
     )
 
-    etcd = plan.add_service(name = ETCD_SERVICE_NAME, config = etcd_service_config)
+    etcd = plan.add_service(name = name, config = etcd_service_config)
 
-    return {"service-name": ETCD_SERVICE_NAME, "hostname": etcd.hostname, "port": ETCD_CLIENT_PORT_NUMBER}
+    return {"service-name": name, "hostname": etcd.hostname, "port": client_port}
 
