@@ -24,9 +24,8 @@ def run(
         Returns an object containing useful information about the etcd service running. For example:
         ```
         {
-            "hostname": "etcd",
-            "port": 2379,
-            "service-name": "etcd"
+            "url": "http://172.16.24.4:2379",
+            "service_name": "etcd"
         }
         ```
     """
@@ -60,4 +59,7 @@ def run(
 
     etcd = plan.add_service(name = etcd_name, config = etcd_service_config)
 
-    return {"service-name": etcd_name, "hostname": etcd.hostname, "port": etcd_client_port}
+    return struct(
+        url="http://{}:{}".format(etcd.ip_address, etcd_client_port),
+        service_name=etcd_name,
+    )
