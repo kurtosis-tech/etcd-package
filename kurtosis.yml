@@ -1,1 +1,3 @@
 name: "github.com/kurtosis-tech/etcd-package"
+description: |
+  Runs an etcd single-node service inside a Kurtosis enclave
