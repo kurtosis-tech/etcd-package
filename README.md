@@ -64,6 +64,6 @@ def run(plan, argument_1, optional_argument=""):
     optional_etcd_args = {}
     etcd_service = etcd_module.run(plan, optional_etcd_args)
 
-    plan.print("etcd is running on {}".format(etcd_service.url))
+    plan.print("etcd is running on {}:{}".format(etcd_service["hostname"], etcd_service["port"]))
     ...
 ```

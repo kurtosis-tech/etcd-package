@@ -59,7 +59,4 @@ def run(
 
     etcd = plan.add_service(name = etcd_name, config = etcd_service_config)
 
-    return struct(
-        url="http://{}:{}".format(etcd.ip_address, etcd_client_port),
-        service_name=etcd_name,
-    )
+    return return {"service-name": name, "hostname": etcd.hostname, "port": client_port}
