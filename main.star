@@ -59,4 +59,4 @@ def run(
 
     etcd = plan.add_service(name = etcd_name, config = etcd_service_config)
 
-    return return {"service-name": name, "hostname": etcd.hostname, "port": client_port}
+    return {"service-name": name, "hostname": etcd.hostname, "port": client_port}
