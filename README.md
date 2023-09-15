@@ -55,11 +55,15 @@ Kurtosis Packages can be used within other Kurtosis Packages, through what we ca
 together you just need to do the following
 
 ```py
-main_etcd_module = import_module("github.com/kurtosis-tech/etcd-package/main.star")
+etcd_module = import_module("github.com/kurtosis-tech/etcd-package/main.star")
 
-# main.star of your etcd + Service package
-def run(plan, args):
-    plan.print("Spinning up the etcd Package")
+# main.star of your package
+def run(plan, argument_1, optional_argument=""):
+    plan.print("spinning up the etcd service inside the enclave")
     # this will spin up etcd and return the output of the etcd package
-    etcd_run_output = main_redis_module.run(plan, args)
+    optional_etcd_args = {}
+    etcd_service = etcd_module.run(plan, optional_etcd_args)
+
+    plan.print("etcd is running on {}:{}".format(etcd_service["hostname"], etcd_service["port"]))
+    ...
 ```
